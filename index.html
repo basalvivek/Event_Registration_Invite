@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Form</title>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --bg: #F3F4F6;
+      --card: #FFFFFF;
+      --text: #111827;
+      --muted: #6B7280;
+      --border: #D1D5DB;
+      --border-focus: #4F46E5;
+      --error: #DC2626;
+      --success-bg: #F0FDF4;
+      --success: #15803D;
+      --radius: 8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .page-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── Purpose Banner ── */
+    .purpose-banner {
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .purpose-banner .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 0.35rem;
+    }
+    .purpose-banner .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      padding: 2rem 2rem 2.5rem;
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    .card-sub {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Form Grid ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .span-2 { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .field .required { color: var(--error); margin-left: 2px; }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 0.875rem;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    }
+    .field input.invalid,
+    .field select.invalid,
+    .field textarea.invalid {
+      border-color: var(--error);
+    }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.25rem;
+      cursor: pointer;
+    }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: var(--error);
+      min-height: 1rem;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      grid-column: 1 / -1;
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0.25rem 0;
+    }
+
+    /* ── Submit ── */
+    .submit-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+    .btn-submit {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.7rem 2rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-submit:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-submit:active:not(:disabled) { transform: scale(0.98); }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Success Overlay ── */
+    .success-box {
+      display: none;
+      background: var(--success-bg);
+      border: 1.5px solid #86EFAC;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .success-box.show { display: block; }
+    .success-box .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .success-box h3 { color: var(--success); font-size: 1.1rem; margin-bottom: 0.35rem; }
+    .success-box p { font-size: 0.875rem; color: #166534; }
+
+    .btn-again {
+      margin-top: 1rem;
+      background: none;
+      border: 1.5px solid var(--success);
+      color: var(--success);
+      border-radius: 6px;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-again:hover { background: #DCFCE7; }
+
+    /* ── Toast error ── */
+    .toast {
+      display: none;
+      background: #FEF2F2;
+      border: 1.5px solid #FECACA;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #991B1B;
+      margin-top: 1rem;
+    }
+    .toast.show { display: block; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .card { padding: 1.25rem 1.1rem 1.75rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: 1; }
+      .purpose-banner .value { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+
+  <!-- Purpose Banner -->
+  <div class="purpose-banner">
+    <div class="label">Registration For</div>
+    <div class="value" id="purposeDisplay"></div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-title">Registration Form</div>
+    <div class="card-sub">All fields marked <span style="color:#DC2626">*</span> are required.</div>
+
+    <form id="regForm" novalidate>
+      <div class="form-grid">
+
+        <!-- First Name -->
+        <div class="field">
+          <label for="firstName">First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" name="firstName" placeholder="John" autocomplete="given-name">
+          <span class="error-msg" id="err-firstName"></span>
+        </div>
+
+        <!-- Last Name -->
+        <div class="field">
+          <label for="lastName">Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" name="lastName" placeholder="Doe" autocomplete="family-name">
+          <span class="error-msg" id="err-lastName"></span>
+        </div>
+
+        <!-- Age -->
+        <div class="field">
+          <label for="age">Age <span class="required">*</span></label>
+          <input type="number" id="age" name="age" placeholder="25" min="1" max="120" autocomplete="off">
+          <span class="error-msg" id="err-age"></span>
+        </div>
+
+        <!-- Sex -->
+        <div class="field">
+          <label for="sex">Sex <span class="required">*</span></label>
+          <select id="sex" name="sex">
+            <option value="">— Select —</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+          <span class="error-msg" id="err-sex"></span>
+        </div>
+
+        <!-- Email -->
+        <div class="field span-2">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" placeholder="john.doe@example.com" autocomplete="email">
+          <span class="error-msg" id="err-email"></span>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Address -->
+        <div class="field span-2">
+          <label for="address">Complete Address <span class="required">*</span></label>
+          <textarea id="address" name="address" placeholder="House / Flat No., Street, City, State, Country" rows="3" autocomplete="street-address"></textarea>
+          <span class="error-msg" id="err-address"></span>
+        </div>
+
+        <!-- Post Code -->
+        <div class="field">
+          <label for="postCode">Post Code <span class="required">*</span></label>
+          <input type="text" id="postCode" name="postCode" placeholder="e.g. 400001" autocomplete="postal-code">
+          <span class="error-msg" id="err-postCode"></span>
+        </div>
+
+        <!-- Remark -->
+        <div class="field span-2">
+          <label for="remark">Remark</label>
+          <textarea id="remark" name="remark" placeholder="Any additional notes or comments (optional)" rows="2"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-wrap">
+          <button type="submit" class="btn-submit" id="submitBtn">
+            Submit Registration
+          </button>
+        </div>
+
+      </div><!-- /form-grid -->
+    </form>
+
+    <!-- Toast for network errors -->
+    <div class="toast" id="errorToast">
+      Something went wrong. Please check your connection and try again.
+    </div>
+
+    <!-- Success message -->
+    <div class="success-box" id="successBox">
+      <div class="icon">✅</div>
+      <h3>Registration Submitted!</h3>
+      <p>Thank you. Your registration has been recorded successfully.</p>
+      <button class="btn-again" id="anotherBtn">Register Another Person</button>
+    </div>
+
+  </div><!-- /card -->
+
+</div><!-- /page-wrap -->
+
+<script>
+  // ══════════════════════════════════════════════
+  // EDIT THESE TWO LINES BEFORE SHARING THE LINK
+  // ══════════════════════════════════════════════
+  const REGISTRATION_PURPOSE = "ASVDJ Event Registration 2026";
+  const APPS_SCRIPT_URL      = "https://script.google.com/macros/s/AKfycbzSt8XYFte1RHiQx47hlY-or0WDNFmnEd6gODCyJ2E--MiL7jLWuXF-zMvX3-F7SKXc5Q/exec";
+  // ══════════════════════════════════════════════
+
+  // ── Populate purpose banner ──────────────────────
+  document.getElementById('purposeDisplay').textContent = REGISTRATION_PURPOSE;
+  document.title = REGISTRATION_PURPOSE + ' – Registration';
+
+  // ── Validation rules ─────────────────────────────
+  const rules = {
+    firstName : v => v.trim().length >= 1  ? '' : 'First name is required.',
+    lastName  : v => v.trim().length >= 1  ? '' : 'Last name is required.',
+    age       : v => {
+                  const n = Number(v);
+                  if (!v) return 'Age is required.';
+                  if (!Number.isInteger(n) || n < 1 || n > 120) return 'Enter a valid age (1–120).';
+                  return '';
+                },
+    sex       : v => v ? '' : 'Please select a sex.',
+    email     : v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
+    address   : v => v.trim().length >= 5 ? '' : 'Please enter a complete address.',
+    postCode  : v => v.trim().length >= 3 ? '' : 'Post code is required.',
+  };
+
+  function validate(fieldId) {
+    const el = document.getElementById(fieldId);
+    const msg = rules[fieldId] ? rules[fieldId](el.value) : '';
+    const errEl = document.getElementById('err-' + fieldId);
+    if (errEl) errEl.textContent = msg;
+    el.classList.toggle('invalid', !!msg);
+    return !msg;
+  }
+
+  // Live validation on blur
+  Object.keys(rules).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('blur', () => validate(id));
+      el.addEventListener('input', () => {
+        if (el.classList.contains('invalid')) validate(id);
+      });
+    }
+  });
+
+  // ── Form submit ──────────────────────────────────
+  document.getElementById('regForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const allValid = Object.keys(rules).map(id => validate(id)).every(Boolean);
+    if (!allValid) return;
+
+    const btn   = document.getElementById('submitBtn');
+    const toast = document.getElementById('errorToast');
+    toast.classList.remove('show');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Submitting…';
+
+    const params = new URLSearchParams({
+      purpose  : REGISTRATION_PURPOSE,
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName : document.getElementById('lastName').value.trim(),
+      age      : document.getElementById('age').value,
+      sex      : document.getElementById('sex').value,
+      email    : document.getElementById('email').value.trim(),
+      address  : document.getElementById('address').value.trim(),
+      postCode : document.getElementById('postCode').value.trim(),
+      remark   : document.getElementById('remark').value.trim(),
+    });
+
+    try {
+      await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
+        method : 'GET',
+        mode   : 'no-cors',
+      });
+      document.getElementById('regForm').style.display = 'none';
+      document.getElementById('successBox').classList.add('show');
+    } catch (err) {
+      toast.classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Registration';
+    }
+  });
+
+  // ── Register another person ──────────────────────
+  document.getElementById('anotherBtn').addEventListener('click', function() {
+    document.getElementById('regForm').reset();
+    document.getElementById('regForm').style.display = '';
+    document.getElementById('successBox').classList.remove('show');
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').innerHTML = 'Submit Registration';
+    document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+    document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+  });
+</script>
+
+</body>
+</html>
