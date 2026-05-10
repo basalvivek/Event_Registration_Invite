@@ -247,3 +247,7 @@ Every registration is automatically appended as a new row in a connected Google 
 | Google Sheets backend | All data in a spreadsheet the organiser already owns |
 | Programme timeline | Visual connected timeline on the event page |
 | Dark/light theme | Persisted across sessions via localStorage |
+
+---
+
+&copy; 2026 Vivek Basal. All rights reserved.
