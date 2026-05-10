@@ -1,442 +1,874 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registration Form</title>
+  <title>Event Registration</title>
   <style>
     :root {
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --bg: #F3F4F6;
-      --card: #FFFFFF;
-      --text: #111827;
-      --muted: #6B7280;
-      --border: #D1D5DB;
-      --border-focus: #4F46E5;
-      --error: #DC2626;
-      --success-bg: #F0FDF4;
-      --success: #15803D;
-      --radius: 8px;
+      --primary:#4F46E5; --primary-hover:#4338CA; --primary-light:rgba(79,70,229,0.1);
+      --bg:#F3F4F6; --card:#FFFFFF; --text:#111827; --muted:#6B7280;
+      --border:#D1D5DB; --border-focus:#4F46E5; --error:#DC2626;
+      --error-bg:#FEF2F2; --error-border:#FECACA;
+      --success-bg:#F0FDF4; --success:#15803D; --success-border:#86EFAC;
+      --radius:12px; --shadow:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -2px rgba(0,0,0,.05);
+      --t:.2s ease;
     }
+    [data-theme="dark"] {
+      --bg:#0F172A; --card:#1E293B; --text:#F1F5F9; --muted:#94A3B8;
+      --border:#334155; --border-focus:#818CF8; --primary:#6366F1; --primary-hover:#4F46E5;
+      --primary-light:rgba(99,102,241,.15); --error-bg:#2D1515; --error-border:#7F1D1D;
+      --success-bg:#0F2318; --success:#4ADE80; --success-border:#166534;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:1.5rem 1rem 5rem; transition:background var(--t),color var(--t) }
+    .page-wrap { max-width:700px; margin:0 auto }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* top bar */
+    .top-bar { display:flex; justify-content:flex-end; margin-bottom:1rem }
+    .theme-toggle { background:var(--card); border:1.5px solid var(--border); border-radius:50px; padding:.35rem .875rem; display:flex; align-items:center; gap:.4rem; cursor:pointer; font-size:.8rem; font-family:inherit; color:var(--muted); transition:all var(--t) }
+    .theme-toggle:hover { border-color:var(--primary); color:var(--primary) }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 2rem 1rem 4rem;
-    }
+    /* card */
+    .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.75rem 2rem 2rem; border:1px solid transparent; margin-bottom:1.25rem; transition:background var(--t) }
+    [data-theme="dark"] .card { border-color:var(--border) }
+    .card-title { font-size:1.1rem; font-weight:700; margin-bottom:.25rem }
+    .card-sub { font-size:.875rem; color:var(--muted); margin-bottom:1.25rem }
 
-    .page-wrap {
-      max-width: 680px;
-      margin: 0 auto;
+    /* form grid */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem }
+    .span-2 { grid-column:1/-1 }
+    .field { display:flex; flex-direction:column; gap:.3rem }
+    .field label { font-size:.85rem; font-weight:600; color:var(--text) }
+    .req { color:var(--error); margin-left:2px }
+    .field input,.field select,.field textarea {
+      width:100%; border:1.5px solid var(--border); border-radius:8px; padding:.62rem .875rem;
+      font-size:.9375rem; font-family:inherit; color:var(--text); background:var(--bg); outline:none;
+      appearance:none; -webkit-appearance:none;
+      transition:border-color var(--t),box-shadow var(--t),background var(--t)
     }
-
-    /* ── Purpose Banner ── */
-    .purpose-banner {
-      background: var(--primary);
-      color: #fff;
-      border-radius: var(--radius);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .purpose-banner .label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      opacity: 0.8;
-      margin-bottom: 0.35rem;
-    }
-    .purpose-banner .value {
-      font-size: 1.35rem;
-      font-weight: 700;
-      line-height: 1.3;
-    }
-
-    /* ── Card ── */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-      padding: 2rem 2rem 2.5rem;
-    }
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-    .card-sub {
-      font-size: 0.875rem;
-      color: var(--muted);
-      margin-bottom: 1.75rem;
-    }
-
-    /* ── Form Grid ── */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-    .span-2 { grid-column: 1 / -1; }
-
-    .field { display: flex; flex-direction: column; gap: 0.35rem; }
-    .field label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .field .required { color: var(--error); margin-left: 2px; }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      border: 1.5px solid var(--border);
-      border-radius: 6px;
-      padding: 0.6rem 0.875rem;
-      font-size: 0.9375rem;
-      font-family: inherit;
-      color: var(--text);
-      background: #fff;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus {
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
-    }
-    .field input.invalid,
-    .field select.invalid,
-    .field textarea.invalid {
-      border-color: var(--error);
-    }
-    .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-
+    .field input:focus,.field select:focus,.field textarea:focus { border-color:var(--border-focus); box-shadow:0 0 0 3px var(--primary-light); background:var(--card) }
+    .field input.invalid,.field select.invalid,.field textarea.invalid { border-color:var(--error) }
+    .field input.valid,.field select.valid,.field textarea.valid { border-color:#22C55E }
+    .field textarea { resize:vertical; min-height:72px; line-height:1.5 }
     .field select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      padding-right: 2.25rem;
-      cursor: pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right .75rem center; padding-right:2.25rem; cursor:pointer
     }
+    .error-msg { font-size:.78rem; color:var(--error); min-height:1rem }
+    .char-count { font-size:.75rem; color:var(--muted); text-align:right }
 
-    .error-msg {
-      font-size: 0.78rem;
-      color: var(--error);
-      min-height: 1rem;
-    }
+    /* date/time select groups */
+    .dt-row { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap }
+    .dt-row select { flex:1; min-width:80px; width:auto !important }
+    .dt-sep { font-size:.875rem; color:var(--muted); flex-shrink:0; font-weight:500 }
 
-    /* ── Divider ── */
-    .divider {
-      grid-column: 1 / -1;
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0.25rem 0;
-    }
+    /* buttons */
+    .btn-primary { background:var(--primary); color:#fff; border:none; border-radius:8px; padding:.65rem 2rem; font-size:.9375rem; font-weight:600; font-family:inherit; cursor:pointer; transition:background var(--t),transform .1s; display:inline-flex; align-items:center; gap:.5rem }
+    .btn-primary:hover:not(:disabled) { background:var(--primary-hover) }
+    .btn-primary:active:not(:disabled) { transform:scale(.98) }
+    .btn-primary:disabled { opacity:.65; cursor:not-allowed }
+    .btn-secondary { background:none; border:1.5px solid var(--border); border-radius:8px; padding:.6rem 1.5rem; font-size:.875rem; font-weight:600; font-family:inherit; color:var(--muted); cursor:pointer; transition:all var(--t) }
+    .btn-secondary:hover { border-color:var(--primary); color:var(--primary) }
+    .btn-back { background:none; border:1.5px solid var(--border); border-radius:8px; padding:.65rem 1.5rem; font-size:.9375rem; font-weight:600; font-family:inherit; color:var(--muted); cursor:pointer; transition:all var(--t) }
+    .btn-back:hover { border-color:var(--primary); color:var(--primary) }
+    .btn-next,.btn-submit { background:var(--primary); color:#fff; border:none; border-radius:8px; padding:.65rem 2rem; font-size:.9375rem; font-weight:600; font-family:inherit; cursor:pointer; transition:background var(--t),transform .1s; display:flex; align-items:center; gap:.5rem; margin-left:auto }
+    .btn-next:hover,.btn-submit:hover:not(:disabled) { background:var(--primary-hover) }
+    .btn-next:active,.btn-submit:active:not(:disabled) { transform:scale(.98) }
+    .btn-submit:disabled { opacity:.65; cursor:not-allowed }
+    .btn-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.75rem }
 
-    /* ── Submit ── */
-    .submit-wrap {
-      grid-column: 1 / -1;
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 0.5rem;
-    }
-    .btn-submit {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.7rem 2rem;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .btn-submit:hover:not(:disabled) { background: var(--primary-hover); }
-    .btn-submit:active:not(:disabled) { transform: scale(0.98); }
-    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+    /* ── BUILDER ── */
+    .builder-header { text-align:center; padding:1.25rem 0 1.5rem }
+    .builder-header .b-icon { font-size:2.5rem; margin-bottom:.5rem }
+    .builder-header h1 { font-size:1.5rem; font-weight:800; margin-bottom:.4rem }
+    .builder-header p { font-size:.9rem; color:var(--muted) }
 
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* program builder rows */
+    .pb-input { border:1.5px solid var(--border); border-radius:8px; padding:.58rem .75rem; font-size:.875rem; font-family:inherit; background:var(--bg); color:var(--text); outline:none; transition:border-color var(--t),background var(--t) }
+    .pb-input:focus { border-color:var(--border-focus); background:var(--card) }
+    select.pb-select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .65rem center; padding-right:2rem; cursor:pointer }
 
-    /* ── Success Overlay ── */
-    .success-box {
-      display: none;
-      background: var(--success-bg);
-      border: 1.5px solid #86EFAC;
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      text-align: center;
-      margin-top: 1.5rem;
-    }
-    .success-box.show { display: block; }
-    .success-box .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .success-box h3 { color: var(--success); font-size: 1.1rem; margin-bottom: 0.35rem; }
-    .success-box p { font-size: 0.875rem; color: #166534; }
+    .prog-build-row { display:flex; align-items:flex-start; gap:.5rem; padding:.65rem 0; border-bottom:1px solid var(--border) }
+    .prog-build-row:last-child { border-bottom:none }
+    .prog-row-num { width:1.5rem; flex-shrink:0; font-size:.8rem; font-weight:700; color:var(--muted); padding-top:.65rem; text-align:center }
+    .prog-build-fields { display:flex; gap:.5rem; flex:1; flex-wrap:wrap }
+    .pb-time { width:130px; flex-shrink:0 }
+    .pb-title { flex:1; min-width:100px }
+    .pb-desc { flex:2; min-width:120px }
+    .prog-remove { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:.35rem .5rem; border-radius:6px; flex-shrink:0; margin-top:.2rem; transition:all var(--t); line-height:1 }
+    .prog-remove:hover { color:var(--error); background:var(--error-bg) }
+    .btn-add-row { background:var(--primary-light); border:1.5px solid var(--primary); color:var(--primary); border-radius:6px; padding:.35rem .875rem; font-size:.8rem; font-weight:600; font-family:inherit; cursor:pointer; transition:all var(--t) }
+    .btn-add-row:hover { background:var(--primary); color:#fff }
 
-    .btn-again {
-      margin-top: 1rem;
-      background: none;
-      border: 1.5px solid var(--success);
-      color: var(--success);
-      border-radius: 6px;
-      padding: 0.5rem 1.25rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .btn-again:hover { background: #DCFCE7; }
+    .url-box { width:100%; border:1.5px solid var(--border); border-radius:8px; padding:.75rem; font-size:.8rem; font-family:'Courier New',monospace; color:var(--muted); background:var(--bg); resize:none; outline:none; line-height:1.55; transition:background var(--t) }
+    .btn-row-group { display:flex; gap:.65rem; flex-wrap:wrap; margin-top:.75rem }
+    .btn-shorten { background:none; border:1.5px solid var(--border); border-radius:6px; padding:.5rem 1rem; font-size:.85rem; font-weight:600; font-family:inherit; color:var(--muted); cursor:pointer; transition:all var(--t) }
+    .btn-shorten:hover:not(:disabled) { border-color:var(--primary); color:var(--primary) }
+    .btn-shorten:disabled { opacity:.6; cursor:not-allowed }
+    .copied-msg { font-size:.8rem; color:var(--success); margin-top:.5rem; display:none }
+    .b-err { font-size:.8rem; color:var(--error); margin-top:.4rem; display:none }
 
-    /* ── Toast error ── */
-    .toast {
-      display: none;
-      background: #FEF2F2;
-      border: 1.5px solid #FECACA;
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: #991B1B;
-      margin-top: 1rem;
-    }
-    .toast.show { display: block; }
+    /* ── EVENT PAGE ── */
+    .hero { background:linear-gradient(135deg,#4338CA 0%,#7C3AED 100%); border-radius:var(--radius); padding:2.5rem 2rem 2rem; margin-bottom:1.25rem; text-align:center; color:#fff; box-shadow:0 8px 30px rgba(79,70,229,.3); position:relative; overflow:hidden }
+    .hero::before { content:''; position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,.06) }
+    .hero::after  { content:''; position:absolute; bottom:-30px; left:-30px; width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,.05) }
+    .hero-eyebrow { font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; opacity:.7; margin-bottom:.6rem }
+    .hero-title { font-size:clamp(1.35rem,4vw,1.9rem); font-weight:800; line-height:1.25; margin-bottom:.6rem; position:relative; z-index:1 }
+    .hero-sub { font-size:.95rem; opacity:.8; line-height:1.6; max-width:480px; margin:0 auto; position:relative; z-index:1 }
 
-    /* ── Responsive ── */
-    @media (max-width: 520px) {
-      .card { padding: 1.25rem 1.1rem 1.75rem; }
-      .form-grid { grid-template-columns: 1fr; }
-      .span-2 { grid-column: 1; }
-      .purpose-banner .value { font-size: 1.1rem; }
+    .info-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:.875rem; margin-bottom:1.25rem }
+    .info-card { background:var(--card); border-radius:var(--radius); padding:1rem 1.1rem; display:flex; align-items:flex-start; gap:.75rem; box-shadow:var(--shadow); border:1px solid transparent; transition:background var(--t) }
+    [data-theme="dark"] .info-card { border-color:var(--border) }
+    .info-icon { font-size:1.4rem; flex-shrink:0; margin-top:1px }
+    .info-label { font-size:.67rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.2rem }
+    .info-value { font-size:.875rem; font-weight:700; color:var(--text); line-height:1.35 }
+
+    .section-card { background:var(--card); border-radius:var(--radius); padding:1.5rem 1.75rem; margin-bottom:1.25rem; box-shadow:var(--shadow); border:1px solid transparent; transition:background var(--t) }
+    [data-theme="dark"] .section-card { border-color:var(--border) }
+    .section-title { font-size:.95rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem }
+    .about-text { color:var(--muted); line-height:1.75; font-size:.925rem }
+
+    .program-list { display:flex; flex-direction:column }
+    .program-item { display:flex; align-items:flex-start; position:relative; padding-bottom:1.25rem }
+    .program-item:last-child { padding-bottom:0 }
+    .prog-time { width:5.5rem; flex-shrink:0; font-size:.78rem; font-weight:700; color:var(--primary); padding-top:.15rem; text-align:right; padding-right:1rem }
+    .prog-connector { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:1.25rem }
+    .prog-dot { width:10px; height:10px; border-radius:50%; background:var(--primary); margin-top:.2rem; box-shadow:0 0 0 3px var(--primary-light) }
+    .prog-line { width:2px; flex:1; background:var(--border); margin-top:4px; min-height:20px }
+    .program-item:last-child .prog-line { display:none }
+    .prog-body { flex:1; padding-left:.75rem; padding-bottom:.25rem }
+    .prog-title { font-size:.925rem; font-weight:600; color:var(--text); margin-bottom:.15rem }
+    .prog-desc { font-size:.825rem; color:var(--muted); line-height:1.5 }
+
+    .register-divider { display:flex; align-items:center; gap:1rem; margin:1.75rem 0 1.25rem }
+    .register-divider .rd-line { flex:1; height:1px; background:var(--border) }
+    .register-divider .rd-text { font-size:.8rem; font-weight:700; color:var(--primary); letter-spacing:.08em; text-transform:uppercase; white-space:nowrap }
+
+    .step-indicator { display:flex; align-items:flex-start; justify-content:center; margin-bottom:1.25rem }
+    .step-item { display:flex; flex-direction:column; align-items:center; gap:.4rem }
+    .step-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:700; border:2px solid var(--border); background:var(--card); color:var(--muted); transition:all .3s; flex-shrink:0 }
+    .step-circle.active { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 0 0 4px var(--primary-light) }
+    .step-circle.done { background:var(--primary); border-color:var(--primary); color:#fff }
+    .step-label { font-size:.7rem; font-weight:600; color:var(--muted); white-space:nowrap; text-align:center }
+    .step-label.active { color:var(--primary) }
+    .step-connector { height:2px; width:64px; background:var(--border); margin-top:17px; flex-shrink:0; transition:background .3s }
+    .step-connector.done { background:var(--primary) }
+
+    .form-step { display:none }
+    .form-step.active { display:block; animation:fadeSlide .25s ease }
+    .form-step.slide-back { animation:fadeSlideBack .25s ease }
+    @keyframes fadeSlide     { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes fadeSlideBack { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+
+    .review-box { background:var(--primary-light); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1.5rem; display:grid; grid-template-columns:1fr 1fr; gap:.75rem 1.5rem }
+    .review-item { display:flex; flex-direction:column; gap:2px }
+    .review-item.span-2 { grid-column:1/-1 }
+    .review-label { font-size:.68rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.07em }
+    .review-value { font-size:.9rem; font-weight:500; color:var(--text) }
+
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .toast { display:none; background:var(--error-bg); border:1.5px solid var(--error-border); border-radius:8px; padding:.75rem 1rem; font-size:.875rem; color:var(--error); margin-top:1rem }
+    .toast.show { display:block }
+
+    .success-box { display:none; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:2.5rem 2rem; text-align:center; margin-top:1.5rem }
+    .success-box.show { display:block; animation:fadeIn .4s ease }
+    .success-icon { font-size:3.5rem; margin-bottom:.75rem; display:block; animation:pop .5s ease }
+    @keyframes pop    { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .success-box h3 { color:var(--success); font-size:1.3rem; margin-bottom:.4rem }
+    .success-box p { font-size:.9rem; color:var(--muted); line-height:1.7 }
+    /* attendee counter */
+    .attendee-row { display:flex; gap:.75rem; margin-top:.25rem }
+    .attendee-box { flex:1; background:var(--primary-light); border-radius:10px; padding:.875rem .5rem .625rem; display:flex; flex-direction:column; align-items:center; gap:.5rem }
+    .attendee-box input[type=number] { width:100%; text-align:center; font-size:1.4rem; font-weight:700; border:1.5px solid var(--border); border-radius:6px; padding:.3rem .25rem; background:var(--card); color:var(--text); outline:none; font-family:inherit; -moz-appearance:textfield }
+    .attendee-box input[type=number]::-webkit-inner-spin-button,
+    .attendee-box input[type=number]::-webkit-outer-spin-button { opacity:1 }
+    .attendee-box input[type=number]:focus { border-color:var(--border-focus) }
+    .attendee-label { font-size:.72rem; font-weight:700; color:var(--primary); text-align:center; line-height:1.3 }
+
+    @media(max-width:520px) {
+      body { padding:1rem .875rem 4rem }
+      .card,.section-card { padding:1.25rem 1.1rem }
+      .form-grid { grid-template-columns:1fr }
+      .span-2 { grid-column:1 }
+      .info-strip { grid-template-columns:1fr 1fr }
+      .info-card:first-child { grid-column:1/-1 }
+      .step-connector { width:36px }
+      .review-box { grid-template-columns:1fr }
+      .review-item.span-2 { grid-column:1 }
+      .prog-time { width:4.5rem; font-size:.72rem }
+      .hero { padding:2rem 1.25rem 1.75rem }
+      .prog-build-fields { flex-direction:column }
+      .pb-time,.pb-title,.pb-desc { width:100% !important }
+      .dt-row { flex-wrap:wrap }
+      .dt-row select { min-width:calc(50% - .25rem) }
     }
   </style>
 </head>
 <body>
 
-<div class="page-wrap">
+<!-- ══════════════ BUILDER VIEW ══════════════ -->
+<div id="builderView" style="display:none">
+  <div class="page-wrap">
+    <div class="top-bar">
+      <button class="theme-toggle" onclick="toggleTheme()"><span class="ti">🌙</span><span class="tl">Dark mode</span></button>
+    </div>
 
+    <div class="builder-header">
+      <div class="b-icon">🗓️</div>
+      <h1>Event Setup</h1>
+      <p>Fill in your event details to generate a shareable registration link.</p>
+    </div>
 
-  <!-- Purpose Banner -->
-  <div class="purpose-banner">
-    <div class="label">Registration For</div>
-    <div class="value" id="purposeDisplay"></div>
-  </div>
-
-  <!-- Form Card -->
-  <div class="card">
-    <div class="card-title">Registration Form</div>
-    <div class="card-sub">All fields marked <span style="color:#DC2626">*</span> are required.</div>
-
-    <form id="regForm" novalidate>
+    <div class="card">
+      <div class="card-title">Event Details</div>
+      <div class="card-sub">These appear on the page your participants will see.</div>
       <div class="form-grid">
 
-        <!-- First Name -->
-        <div class="field">
-          <label for="firstName">First Name <span class="required">*</span></label>
-          <input type="text" id="firstName" name="firstName" placeholder="John" autocomplete="given-name">
-          <span class="error-msg" id="err-firstName"></span>
-        </div>
-
-        <!-- Last Name -->
-        <div class="field">
-          <label for="lastName">Last Name <span class="required">*</span></label>
-          <input type="text" id="lastName" name="lastName" placeholder="Doe" autocomplete="family-name">
-          <span class="error-msg" id="err-lastName"></span>
-        </div>
-
-        <!-- Age -->
-        <div class="field">
-          <label for="age">Age <span class="required">*</span></label>
-          <input type="number" id="age" name="age" placeholder="25" min="1" max="120" autocomplete="off">
-          <span class="error-msg" id="err-age"></span>
-        </div>
-
-        <!-- Sex -->
-        <div class="field">
-          <label for="sex">Sex <span class="required">*</span></label>
-          <select id="sex" name="sex">
-            <option value="">— Select —</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
-          <span class="error-msg" id="err-sex"></span>
-        </div>
-
-        <!-- Email -->
         <div class="field span-2">
-          <label for="email">Email Address <span class="required">*</span></label>
-          <input type="email" id="email" name="email" placeholder="john.doe@example.com" autocomplete="email">
-          <span class="error-msg" id="err-email"></span>
+          <label>Event Name <span class="req">*</span></label>
+          <input type="text" id="b-name" placeholder="e.g. ASVDJ Events 2026">
         </div>
 
-        <hr class="divider">
-
-        <!-- Address -->
         <div class="field span-2">
-          <label for="address">Complete Address <span class="required">*</span></label>
-          <textarea id="address" name="address" placeholder="House / Flat No., Street, City, State, Country" rows="3" autocomplete="street-address"></textarea>
-          <span class="error-msg" id="err-address"></span>
+          <label>Tagline <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <input type="text" id="b-tagline" placeholder="A Journey Within, Guided by Eternal Values">
         </div>
 
-        <!-- Post Code -->
-        <div class="field">
-          <label for="postCode">Post Code <span class="required">*</span></label>
-          <input type="text" id="postCode" name="postCode" placeholder="e.g. 400001" autocomplete="postal-code">
-          <span class="error-msg" id="err-postCode"></span>
-        </div>
-
-        <!-- Remark -->
+        <!-- Date: Day / Month / Year dropdowns -->
         <div class="field span-2">
-          <label for="remark">Remark</label>
-          <textarea id="remark" name="remark" placeholder="Any additional notes or comments (optional)" rows="2"></textarea>
+          <label>Event Date</label>
+          <div class="dt-row">
+            <select id="b-day">
+              <option value="">Day</option>
+            </select>
+            <select id="b-month">
+              <option value="">Month</option>
+              <option value="1">January</option><option value="2">February</option>
+              <option value="3">March</option><option value="4">April</option>
+              <option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option>
+              <option value="9">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+            <select id="b-year">
+              <option value="">Year</option>
+            </select>
+          </div>
         </div>
 
-        <!-- Submit -->
-        <div class="submit-wrap">
-          <button type="submit" class="btn-submit" id="submitBtn">
-            Submit Registration
-          </button>
+        <!-- Time: Start / End dropdowns -->
+        <div class="field span-2">
+          <label>Event Time</label>
+          <div class="dt-row">
+            <select id="b-startTime"><option value="">Start time</option></select>
+            <span class="dt-sep">to</span>
+            <select id="b-endTime"><option value="">End time</option></select>
+          </div>
         </div>
 
-      </div><!-- /form-grid -->
-    </form>
+        <div class="field span-2">
+          <label>Venue</label>
+          <input type="text" id="b-venue" placeholder="Shri Shantinath Digamber Jain Temple, Slough, UK">
+        </div>
 
-    <!-- Toast for network errors -->
-    <div class="toast" id="errorToast">
-      Something went wrong. Please check your connection and try again.
+        <div class="field span-2">
+          <label>About <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <textarea id="b-about" placeholder="Brief description shown to participants..." rows="2"></textarea>
+        </div>
+
+      </div>
     </div>
 
-    <!-- Success message -->
+    <!-- Program Schedule -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
+        <div class="card-title" style="margin:0">Program Schedule</div>
+        <button type="button" class="btn-add-row" id="addRowBtn">+ Add Item</button>
+      </div>
+      <div class="card-sub">Optional — leave empty to hide the schedule on the event page.</div>
+      <div id="progRows"></div>
+    </div>
+
+    <!-- Generate Link -->
+    <div class="card">
+      <div class="card-title">Your Shareable Link</div>
+      <div class="card-sub">Participants open this link to view event details and register.</div>
+      <button type="button" class="btn-next" style="width:100%;justify-content:center;margin-bottom:.75rem" id="generateBtn">✨ Generate Link</button>
+      <div id="bErr" class="b-err">Please enter the Event Name before generating.</div>
+      <div id="linkOutput" style="display:none">
+        <textarea id="generatedUrl" class="url-box" readonly rows="4"></textarea>
+        <div class="btn-row-group">
+          <button type="button" class="btn-next" style="padding:.5rem 1.25rem;font-size:.875rem" id="copyBtn">Copy Link</button>
+          <button type="button" class="btn-secondary" id="previewBtn">Open Preview →</button>
+          <button type="button" class="btn-shorten" id="shortenBtn">Shorten at TinyURL →</button>
+        </div>
+        <div id="copiedMsg" class="copied-msg">✓ Copied to clipboard!</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ EVENT VIEW ══════════════ -->
+<div id="eventView" style="display:none">
+  <div class="page-wrap">
+    <div class="top-bar">
+      <button class="theme-toggle" onclick="toggleTheme()"><span class="ti">🌙</span><span class="tl">Dark mode</span></button>
+    </div>
+
+    <div class="hero">
+      <div class="hero-eyebrow">You're Invited</div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <p class="hero-sub" id="heroSub"></p>
+    </div>
+
+    <div class="info-strip" id="infoStrip"></div>
+
+    <div class="section-card" id="aboutCard" style="display:none">
+      <div class="section-title">ℹ️ About the Event</div>
+      <p class="about-text" id="aboutText"></p>
+    </div>
+
+    <div class="section-card" id="programCard" style="display:none">
+      <div class="section-title">📋 Program Schedule</div>
+      <div class="program-list" id="programList"></div>
+    </div>
+
+    <div class="register-divider">
+      <div class="rd-line"></div><div class="rd-text">✦ Register Now ✦</div><div class="rd-line"></div>
+    </div>
+
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-item">
+        <div class="step-circle active" id="circle1">1</div>
+        <div class="step-label active" id="label1">Personal Info</div>
+      </div>
+      <div class="step-connector" id="conn12"></div>
+      <div class="step-item">
+        <div class="step-circle" id="circle2">2</div>
+        <div class="step-label" id="label2">Contact Details</div>
+      </div>
+      <div class="step-connector" id="conn23"></div>
+      <div class="step-item">
+        <div class="step-circle" id="circle3">3</div>
+        <div class="step-label" id="label3">Review &amp; Submit</div>
+      </div>
+    </div>
+
+    <div class="card" id="formCard" style="margin-bottom:0">
+      <div class="card-title" id="cardTitle">Personal Information</div>
+      <div class="card-sub">All fields marked <span style="color:#DC2626">*</span> are required.</div>
+
+      <form id="regForm" novalidate>
+
+        <div class="form-step active" id="step1">
+          <div class="form-grid">
+            <div class="field">
+              <label>First Name <span class="req">*</span></label>
+              <input type="text" id="firstName" placeholder="Vivek" autocomplete="given-name">
+              <span class="error-msg" id="err-firstName"></span>
+            </div>
+            <div class="field">
+              <label>Last Name <span class="req">*</span></label>
+              <input type="text" id="lastName" placeholder="Basal" autocomplete="family-name">
+              <span class="error-msg" id="err-lastName"></span>
+            </div>
+            <div class="field">
+              <label>Age <span class="req">*</span></label>
+              <input type="number" id="age" placeholder="21" min="1" max="120">
+              <span class="error-msg" id="err-age"></span>
+            </div>
+            <div class="field">
+              <label>Sex <span class="req">*</span></label>
+              <select id="sex">
+                <option value="">— Select —</option>
+                <option>Male</option><option>Female</option>
+                <option>Other</option><option value="Prefer not to say">Prefer not to say</option>
+              </select>
+              <span class="error-msg" id="err-sex"></span>
+            </div>
+            <div class="field span-2">
+              <label>Phone Number <span class="req">*</span></label>
+              <input type="tel" id="phone" placeholder="+4402034880078" autocomplete="tel">
+              <span class="error-msg" id="err-phone"></span>
+            </div>
+            <div class="field span-2">
+              <label>Email Address <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="john.doe@example.com" autocomplete="email">
+              <span class="error-msg" id="err-email"></span>
+            </div>
+            <div class="field span-2">
+              <label>Number of Attendees <span class="req">*</span></label>
+              <div class="attendee-row">
+                <div class="attendee-box">
+                  <input type="number" id="adults" value="0" min="0" max="50">
+                  <span class="attendee-label">Adults<br>(18+)</span>
+                </div>
+                <div class="attendee-box">
+                  <input type="number" id="youth" value="0" min="0" max="50">
+                  <span class="attendee-label">Youth<br>(8–17)</span>
+                </div>
+                <div class="attendee-box">
+                  <input type="number" id="under8" value="0" min="0" max="50">
+                  <span class="attendee-label">Under<br>8 yrs</span>
+                </div>
+              </div>
+              <span class="error-msg" id="err-attendees"></span>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-next" id="nextBtn1">Continue →</button>
+          </div>
+        </div>
+
+        <div class="form-step" id="step2">
+          <div class="form-grid">
+            <div class="field span-2">
+              <label>Complete Address <span class="req">*</span></label>
+              <textarea id="address" placeholder="The Old Barn, Slough, UK" rows="3" autocomplete="street-address"></textarea>
+              <span class="error-msg" id="err-address"></span>
+            </div>
+            <div class="field">
+              <label>Post Code <span class="req">*</span></label>
+              <input type="text" id="postCode" placeholder="e.g. SL1 5AP" autocomplete="postal-code">
+              <span class="error-msg" id="err-postCode"></span>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-back" id="backBtn2">← Back</button>
+            <button type="button" class="btn-next" id="nextBtn2">Review →</button>
+          </div>
+        </div>
+
+        <div class="form-step" id="step3">
+          <div class="review-box" id="reviewBox"></div>
+          <div class="field">
+            <label>Remark <span style="color:var(--muted);font-weight:400;font-size:.8rem">(optional)</span></label>
+            <textarea id="remark" placeholder="Any additional notes or comments" rows="2" maxlength="300"></textarea>
+            <div class="char-count"><span id="remarkCount">0</span> / 300</div>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn-back" id="backBtn3">← Back</button>
+            <button type="submit" class="btn-submit" id="submitBtn">Submit Registration</button>
+          </div>
+        </div>
+
+      </form>
+      <div class="toast" id="errorToast">Something went wrong. Please check your connection and try again.</div>
+    </div>
+
     <div class="success-box" id="successBox">
-      <div class="icon">✅</div>
-      <h3>Registration Submitted!</h3>
-      <p>Thank you. Your registration has been recorded successfully.</p>
-      <button class="btn-again" id="anotherBtn">Register Another Person</button>
+      <span class="success-icon">✅</span>
+      <h3>Registration Confirmed!</h3>
+      <p>Thank you, your registration has been recorded.<br>A confirmation email is on its way to your inbox.</p>
     </div>
 
-  </div><!-- /card -->
-
-</div><!-- /page-wrap -->
+  </div>
+</div>
 
 <script>
-  // ══════════════════════════════════════════════
-  // EDIT THESE TWO LINES BEFORE SHARING THE LINK
-  // ══════════════════════════════════════════════
-  const REGISTRATION_PURPOSE = "ASVDJ Event Registration 2026";
-  const APPS_SCRIPT_URL      = "https://script.google.com/macros/s/AKfycbzSt8XYFte1RHiQx47hlY-or0WDNFmnEd6gODCyJ2E--MiL7jLWuXF-zMvX3-F7SKXc5Q/exec";
-  // ══════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════
+  //  APPS SCRIPT URL
+  // ═══════════════════════════════════════════════════
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypnFS-zq0aG__3jSUAoYFwwKzfiSLlPAOEAcrn9j_jzihDB7mHsf9pqeBg6qh0FZjy/exec";
+  
 
-  // ── Populate purpose banner ──────────────────────
-  document.getElementById('purposeDisplay').textContent = REGISTRATION_PURPOSE;
-  document.title = REGISTRATION_PURPOSE + ' – Registration';
+  // ═══════════════════════════════════════════════════
+  //  YOUR NETLIFY SITE URL  ← paste it here once
+  //  e.g.  "https://asvdj-2026.netlify.app"
+  // ═══════════════════════════════════════════════════
+  const SITE_BASE_URL = "https://asvdj.netlify.app/";
 
-  // ── Validation rules ─────────────────────────────
-  const rules = {
-    firstName : v => v.trim().length >= 1  ? '' : 'First name is required.',
-    lastName  : v => v.trim().length >= 1  ? '' : 'Last name is required.',
-    age       : v => {
-                  const n = Number(v);
-                  if (!v) return 'Age is required.';
-                  if (!Number.isInteger(n) || n < 1 || n > 120) return 'Enter a valid age (1–120).';
-                  return '';
-                },
-    sex       : v => v ? '' : 'Please select a sex.',
-    email     : v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
-    address   : v => v.trim().length >= 5 ? '' : 'Please enter a complete address.',
-    postCode  : v => v.trim().length >= 3 ? '' : 'Post code is required.',
-  };
+  // ── State (declared before any function that uses it) ──────────────
+  let rowId = 0;
 
-  function validate(fieldId) {
-    const el = document.getElementById(fieldId);
-    const msg = rules[fieldId] ? rules[fieldId](el.value) : '';
-    const errEl = document.getElementById('err-' + fieldId);
-    if (errEl) errEl.textContent = msg;
-    el.classList.toggle('invalid', !!msg);
-    return !msg;
+  // ── Theme ──────────────────────────────────────────────────────────
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    localStorage.setItem('theme', next);
+  }
+  function setTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelectorAll('.ti').forEach(el => el.textContent = t === 'dark' ? '☀️' : '🌙');
+    document.querySelectorAll('.tl').forEach(el => el.textContent = t === 'dark' ? 'Light mode' : 'Dark mode');
   }
 
-  // Live validation on blur
-  Object.keys(rules).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('blur', () => validate(id));
-      el.addEventListener('input', () => {
-        if (el.classList.contains('invalid')) validate(id);
-      });
+  // ── Builder helpers ────────────────────────────────────────────────
+  function makeTimeOptionsHTML() {
+    let html = '<option value="">— Select —</option>';
+    for (let h = 5; h <= 23; h++) {
+      for (const m of [0, 30]) {
+        const period = h < 12 ? 'AM' : 'PM';
+        const dh = h > 12 ? h - 12 : h;
+        const dm = m === 0 ? '00' : '30';
+        const label = dh + ':' + dm + ' ' + period;
+        html += '<option value="' + label + '">' + label + '</option>';
+      }
     }
-  });
+    return html;
+  }
 
-  // ── Form submit ──────────────────────────────────
-  document.getElementById('regForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+  function buildDateStr() {
+    const day   = document.getElementById('b-day').value;
+    const month = document.getElementById('b-month').value;
+    const year  = document.getElementById('b-year').value;
+    if (!day || !month || !year) return '';
+    const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const d = new Date(+year, +month - 1, +day);
+    return WEEKDAYS[d.getDay()] + ', ' + day + ' ' + MONTHS[+month - 1] + ' ' + year;
+  }
 
-    const allValid = Object.keys(rules).map(id => validate(id)).every(Boolean);
-    if (!allValid) return;
+  function buildTimeStr() {
+    const start = document.getElementById('b-startTime').value;
+    const end   = document.getElementById('b-endTime').value;
+    if (!start && !end) return '';
+    if (start && end) return start + ' – ' + end;
+    return start || end;
+  }
 
-    const btn   = document.getElementById('submitBtn');
-    const toast = document.getElementById('errorToast');
-    toast.classList.remove('show');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> Submitting…';
+  function addProgRow() {
+    const id  = 'pr' + rowId++;
+    const num = document.querySelectorAll('.prog-build-row').length + 1;
+    const div = document.createElement('div');
+    div.className = 'prog-build-row';
+    div.id = id;
+    div.innerHTML =
+      '<div class="prog-row-num">' + num + '</div>' +
+      '<div class="prog-build-fields">' +
+        '<select class="pb-input pb-time pb-select">' + makeTimeOptionsHTML() + '</select>' +
+        '<input class="pb-input pb-title" placeholder="Session title *">' +
+        '<input class="pb-input pb-desc"  placeholder="Description (optional)">' +
+      '</div>' +
+      '<button type="button" class="prog-remove" data-id="' + id + '" title="Remove">&#x2715;</button>';
+    div.querySelector('.prog-remove').addEventListener('click', function() {
+      document.getElementById(this.dataset.id).remove();
+      document.querySelectorAll('.prog-row-num').forEach(function(el, i) { el.textContent = i + 1; });
+    });
+    document.getElementById('progRows').appendChild(div);
+  }
 
-    const params = new URLSearchParams({
-      purpose  : REGISTRATION_PURPOSE,
-      firstName: document.getElementById('firstName').value.trim(),
-      lastName : document.getElementById('lastName').value.trim(),
-      age      : document.getElementById('age').value,
-      sex      : document.getElementById('sex').value,
-      email    : document.getElementById('email').value.trim(),
-      address  : document.getElementById('address').value.trim(),
-      postCode : document.getElementById('postCode').value.trim(),
-      remark   : document.getElementById('remark').value.trim(),
+  function generateLink() {
+    const name  = document.getElementById('b-name').value.trim();
+    const errEl = document.getElementById('bErr');
+    if (!name) {
+      errEl.style.display = 'block';
+      document.getElementById('b-name').focus();
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const p = new URLSearchParams();
+    p.set('name', name);
+    const tagline = document.getElementById('b-tagline').value.trim();
+    const date    = buildDateStr();
+    const time    = buildTimeStr();
+    const venue   = document.getElementById('b-venue').value.trim();
+    const about   = document.getElementById('b-about').value.trim();
+    if (tagline) p.set('tagline', tagline);
+    if (date)    p.set('date',    date);
+    if (time)    p.set('time',    time);
+    if (venue)   p.set('venue',   venue);
+    if (about)   p.set('about',   about);
+
+    document.querySelectorAll('.prog-build-row').forEach(function(row) {
+      const t = row.querySelector('.pb-time').value.trim();
+      const n = row.querySelector('.pb-title').value.trim();
+      const d = row.querySelector('.pb-desc').value.trim();
+      if (n) p.append('p', t + '|' + n + '|' + d);
     });
 
+    const base = SITE_BASE_URL
+      ? SITE_BASE_URL.replace(/\/?$/, '') + '/'
+      : location.href.split('?')[0];
+    const url = base + '?' + p.toString();
+    document.getElementById('generatedUrl').value = url;
+    document.getElementById('linkOutput').style.display = '';
+    document.getElementById('shortenBtn').textContent = 'Shorten URL';
+    document.getElementById('shortenBtn').disabled = false;
+    document.getElementById('copiedMsg').style.display = 'none';
+  }
+
+  function copyLink() {
+    const url = document.getElementById('generatedUrl').value;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(function() {
+      const m = document.getElementById('copiedMsg');
+      m.style.display = 'block';
+      setTimeout(function() { m.style.display = 'none'; }, 2500);
+    });
+  }
+
+  function openPreview() {
+    const url = document.getElementById('generatedUrl').value;
+    if (url) window.open(url, '_blank');
+  }
+
+  async function shortenLink() {
+    const url = document.getElementById('generatedUrl').value;
+    if (!url) return;
+    const btn = document.getElementById('shortenBtn');
+    btn.disabled = true;
+    btn.textContent = 'Shortening…';
     try {
-      await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
-        method : 'GET',
-        mode   : 'no-cors',
-      });
-      document.getElementById('regForm').style.display = 'none';
-      document.getElementById('successBox').classList.add('show');
-    } catch (err) {
-      toast.classList.add('show');
+      const res   = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url));
+      const short = (await res.text()).trim();
+      if (short.startsWith('https://tinyurl.com/')) {
+        document.getElementById('generatedUrl').value = short;
+        btn.textContent = '✓ Shortened!';
+      } else {
+        throw new Error('unexpected response');
+      }
+    } catch (_) {
+      btn.textContent = 'Failed — try again';
       btn.disabled = false;
-      btn.innerHTML = 'Submit Registration';
     }
-  });
+  }
 
-  // ── Register another person ──────────────────────
-  document.getElementById('anotherBtn').addEventListener('click', function() {
-    document.getElementById('regForm').reset();
-    document.getElementById('regForm').style.display = '';
-    document.getElementById('successBox').classList.remove('show');
-    document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').innerHTML = 'Submit Registration';
-    document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
-    document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
-  });
+  function initBuilder() {
+    // Populate day dropdown (1–31)
+    const dayEl = document.getElementById('b-day');
+    for (let d = 1; d <= 31; d++) {
+      const o = document.createElement('option');
+      o.value = o.textContent = d;
+      dayEl.appendChild(o);
+    }
+
+    // Populate year dropdown (current year + 5)
+    const yearEl = document.getElementById('b-year');
+    const yr = new Date().getFullYear();
+    for (let y = yr; y <= yr + 5; y++) {
+      const o = document.createElement('option');
+      o.value = o.textContent = y;
+      yearEl.appendChild(o);
+    }
+
+    // Populate time dropdowns
+    const timeHtml = makeTimeOptionsHTML();
+    document.getElementById('b-startTime').innerHTML = timeHtml;
+    document.getElementById('b-endTime').innerHTML   = timeHtml;
+
+    // Wire buttons via addEventListener (no inline onclick needed)
+    document.getElementById('addRowBtn').addEventListener('click', addProgRow);
+    document.getElementById('generateBtn').addEventListener('click', generateLink);
+    document.getElementById('copyBtn').addEventListener('click', copyLink);
+    document.getElementById('previewBtn').addEventListener('click', openPreview);
+    document.getElementById('shortenBtn').addEventListener('click', shortenLink);
+
+    // Start with two empty program rows
+    addProgRow();
+    addProgRow();
+  }
+
+  // ── Event page ─────────────────────────────────────────────────────
+  function initEventPage(params) {
+    const E = {
+      name   : params.get('name')    || 'Event Registration',
+      tagline: params.get('tagline') || '',
+      date   : params.get('date')    || '',
+      time   : params.get('time')    || '',
+      venue  : params.get('venue')   || '',
+      about  : params.get('about')   || '',
+      program: params.getAll('p').map(function(s) {
+        const parts = s.split('|');
+        return { time: parts[0] || '', title: parts[1] || '', desc: parts[2] || '' };
+      }),
+    };
+
+    document.title = E.name + ' – Registration';
+    document.getElementById('heroTitle').textContent = E.name;
+    if (E.tagline) {
+      document.getElementById('heroSub').textContent = E.tagline;
+    } else {
+      document.getElementById('heroSub').style.display = 'none';
+    }
+
+    const infoItems = [
+      { icon:'📅', label:'Date',  value:E.date  },
+      { icon:'🕘', label:'Time',  value:E.time  },
+      { icon:'📍', label:'Venue', value:E.venue },
+    ].filter(function(c) { return c.value; });
+
+    const strip = document.getElementById('infoStrip');
+    if (infoItems.length) {
+      strip.style.gridTemplateColumns = 'repeat(' + infoItems.length + ',1fr)';
+      strip.innerHTML = infoItems.map(function(c) {
+        return '<div class="info-card"><span class="info-icon">' + c.icon + '</span>' +
+               '<div><div class="info-label">' + c.label + '</div>' +
+               '<div class="info-value">' + c.value + '</div></div></div>';
+      }).join('');
+    } else {
+      strip.style.display = 'none';
+    }
+
+    if (E.about) {
+      document.getElementById('aboutText').textContent = E.about;
+      document.getElementById('aboutCard').style.display = '';
+    }
+
+    if (E.program.length) {
+      document.getElementById('programList').innerHTML = E.program.map(function(item) {
+        return '<div class="program-item">' +
+               '<div class="prog-time">' + item.time + '</div>' +
+               '<div class="prog-connector"><div class="prog-dot"></div><div class="prog-line"></div></div>' +
+               '<div class="prog-body"><div class="prog-title">' + item.title + '</div>' +
+               (item.desc ? '<div class="prog-desc">' + item.desc + '</div>' : '') +
+               '</div></div>';
+      }).join('');
+      document.getElementById('programCard').style.display = '';
+    }
+
+    window._meta = { name:E.name, date:E.date, time:E.time, venue:E.venue };
+    initForm();
+  }
+
+  function initForm() {
+    const rules = {
+      firstName: function(v) { return v.trim() ? '' : 'First name is required.'; },
+      lastName : function(v) { return v.trim() ? '' : 'Last name is required.'; },
+      age      : function(v) { var n=+v; if(!v) return 'Age is required.'; if(!Number.isInteger(n)||n<1||n>120) return 'Enter a valid age (1–120).'; return ''; },
+      sex      : function(v) { return v ? '' : 'Please select a sex.'; },
+      phone    : function(v) { var c=v.replace(/[\s\-().+]/g,''); if(!v.trim()) return 'Phone number is required.'; if(!/^\d{7,15}$/.test(c)) return 'Enter a valid phone number.'; return ''; },
+      email    : function(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.'; },
+      address  : function(v) { return v.trim().length >= 5 ? '' : 'Please enter a complete address.'; },
+      postCode : function(v) { return v.trim().length >= 3 ? '' : 'Post code is required.'; },
+    };
+
+    function val(id) {
+      var el  = document.getElementById(id);
+      var msg = rules[id] ? rules[id](el.value) : '';
+      var err = document.getElementById('err-' + id);
+      if (err) err.textContent = msg;
+      el.classList.toggle('invalid', !!msg);
+      el.classList.toggle('valid', !msg && !!el.value.trim());
+      return !msg;
+    }
+
+    Object.keys(rules).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('blur', function() { val(id); });
+      el.addEventListener('input', function() { if (el.classList.contains('invalid')) val(id); });
+    });
+
+    var remarkEl = document.getElementById('remark');
+    var rc       = document.getElementById('remarkCount');
+    remarkEl.addEventListener('input', function() { rc.textContent = remarkEl.value.length; });
+
+    var cur = 1;
+    var sf  = { 1:['firstName','lastName','age','sex','phone','email'], 2:['address','postCode'] };
+    var st  = { 1:'Personal Information', 2:'Address Details', 3:'Review & Submit' };
+
+    function goTo(step, dir) {
+      dir = dir || 'forward';
+      document.getElementById('step' + cur).classList.remove('active', 'slide-back');
+      var nx = document.getElementById('step' + step);
+      nx.classList.add('active');
+      if (dir === 'back') nx.classList.add('slide-back');
+      for (var i = 1; i <= 3; i++) {
+        var c = document.getElementById('circle' + i);
+        var l = document.getElementById('label'  + i);
+        c.classList.toggle('active', i === step);
+        c.classList.toggle('done',   i <  step);
+        l.classList.toggle('active', i === step);
+        c.textContent = i < step ? '✓' : String(i);
+      }
+      document.getElementById('conn12').classList.toggle('done', step > 1);
+      document.getElementById('conn23').classList.toggle('done', step > 2);
+      document.getElementById('cardTitle').textContent = st[step];
+      cur = step;
+      if (step === 3) showReview();
+      document.getElementById('formCard').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function showReview() {
+      var fields = [
+        { l:'First Name', id:'firstName' }, { l:'Last Name', id:'lastName' },
+        { l:'Age', id:'age' }, { l:'Sex', id:'sex' }, { l:'Phone', id:'phone' },
+        { l:'Adults (18+)', id:'adults' }, { l:'Youth (8–17)', id:'youth' }, { l:'Under 8 yrs', id:'under8' },
+        { l:'Email', id:'email', s:true }, { l:'Post Code', id:'postCode' },
+        { l:'Address', id:'address', s:true },
+      ];
+      document.getElementById('reviewBox').innerHTML = fields.map(function(f) {
+        return '<div class="review-item' + (f.s ? ' span-2' : '') + '">' +
+               '<span class="review-label">' + f.l + '</span>' +
+               '<span class="review-value">' + (document.getElementById(f.id).value.trim() || '—') + '</span></div>';
+      }).join('');
+    }
+
+    document.getElementById('nextBtn1').addEventListener('click', function() {
+      var fieldsOk = sf[1].map(val).every(Boolean);
+      var tot = (parseInt(document.getElementById('adults').value) || 0) +
+                (parseInt(document.getElementById('youth').value)  || 0) +
+                (parseInt(document.getElementById('under8').value) || 0);
+      var attErr = document.getElementById('err-attendees');
+      attErr.textContent = tot < 1 ? 'Please add at least 1 attendee.' : '';
+      if (fieldsOk && tot >= 1) goTo(2);
+    });
+    document.getElementById('nextBtn2').addEventListener('click', function() {
+      if (sf[2].map(val).every(Boolean)) goTo(3);
+    });
+    document.getElementById('backBtn2').addEventListener('click', function() { goTo(1, 'back'); });
+    document.getElementById('backBtn3').addEventListener('click', function() { goTo(2, 'back'); });
+
+    document.getElementById('regForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn   = document.getElementById('submitBtn');
+      var toast = document.getElementById('errorToast');
+      toast.classList.remove('show');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Submitting…';
+      var m = window._meta || {};
+      var p = new URLSearchParams({
+        purpose   : m.name  || '',
+        eventDate : m.date  || '',
+        eventTime : m.time  || '',
+        eventVenue: m.venue || '',
+        firstName : document.getElementById('firstName').value.trim(),
+        lastName  : document.getElementById('lastName').value.trim(),
+        age       : document.getElementById('age').value,
+        sex       : document.getElementById('sex').value,
+        phone     : document.getElementById('phone').value.trim(),
+        email     : document.getElementById('email').value.trim(),
+        address   : document.getElementById('address').value.trim(),
+        postCode  : document.getElementById('postCode').value.trim(),
+        remark    : document.getElementById('remark').value.trim(),
+        adults    : document.getElementById('adults').value  || '0',
+        youth     : document.getElementById('youth').value   || '0',
+        under8    : document.getElementById('under8').value  || '0',
+      });
+      try {
+        await fetch(APPS_SCRIPT_URL + '?' + p.toString(), { method:'GET', mode:'no-cors' });
+        document.getElementById('formCard').style.display      = 'none';
+        document.getElementById('stepIndicator').style.display = 'none';
+        document.getElementById('successBox').classList.add('show');
+        document.getElementById('successBox').scrollIntoView({ behavior:'smooth', block:'center' });
+      } catch (_) {
+        toast.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Registration';
+      }
+    });
+
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  ROUTE  (runs last — all declarations are ready)
+  // ═══════════════════════════════════════════════════
+  setTheme(localStorage.getItem('theme') || 'light');
+
+  var urlP = new URLSearchParams(window.location.search);
+  if (urlP.has('name')) {
+    document.getElementById('eventView').style.display = '';
+    initEventPage(urlP);
+  } else {
+    document.getElementById('builderView').style.display = '';
+    initBuilder();
+  }
 </script>
-
 </body>
 </html>
