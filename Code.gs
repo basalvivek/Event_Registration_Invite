@@ -35,10 +35,31 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  if (e && e.parameter && e.parameter.firstName) {
-    return saveRegistration(e.parameter);
+  if (e && e.parameter) {
+    if (e.parameter.firstName) {
+      return saveRegistration(e.parameter);
+    }
+    if (e.parameter.action === 'shorten' && e.parameter.url) {
+      return shortenUrl(e.parameter.url);
+    }
   }
   return jsonResponse({ status: 'Registration API is running' });
+}
+
+function shortenUrl(longUrl) {
+  try {
+    const res   = UrlFetchApp.fetch('https://is.gd/create.php?format=simple&url=' + encodeURIComponent(longUrl));
+    const short = res.getContentText().trim();
+    return jsonResponse({ short: short });
+  } catch (err) {
+    return jsonResponse({ short: null, error: err.toString() });
+  }
+}
+
+// ── Run once to authorize UrlFetchApp (needed for URL shortening) ─
+function testShorten() {
+  const result = shortenUrl('https://asvdj.netlify.app/');
+  Logger.log(JSON.stringify(result));
 }
 
 // ── Run once to fix column headers in existing sheet ──────────────

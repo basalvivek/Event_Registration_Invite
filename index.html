@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Event Registration</title>
+  <link rel="icon" href="/logo/logo.jpeg" type="image/jpeg">
   <style>
     :root {
       --primary:#4F46E5; --primary-hover:#4338CA; --primary-light:rgba(79,70,229,0.1);
@@ -228,6 +229,16 @@
       <div class="form-grid">
 
         <div class="field span-2">
+          <label>Organisation Name <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <input type="text" id="b-org" placeholder="e.g. ASVDJ UK">
+        </div>
+
+        <div class="field span-2">
+          <label>Organisation Logo URL <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+          <input type="text" id="b-logo" placeholder="https://example.com/logo.png" value="/logo/logo.jpeg">
+        </div>
+
+        <div class="field span-2">
           <label>Event Name <span class="req">*</span></label>
           <input type="text" id="b-name" placeholder="e.g. ASVDJ Events 2026">
         </div>
@@ -303,7 +314,7 @@
         <div class="btn-row-group">
           <button type="button" class="btn-next" style="padding:.5rem 1.25rem;font-size:.875rem" id="copyBtn">Copy Link</button>
           <button type="button" class="btn-secondary" id="previewBtn">Open Preview →</button>
-          <button type="button" class="btn-shorten" id="shortenBtn">Shorten at TinyURL →</button>
+          <button type="button" class="btn-shorten" id="shortenBtn">Shorten URL →</button>
         </div>
         <div id="copiedMsg" class="copied-msg">✓ Copied to clipboard!</div>
       </div>
@@ -321,6 +332,10 @@
     </div>
 
     <div class="hero">
+      <div id="heroOrgWrap" style="display:none;align-items:center;justify-content:center;gap:.5rem;margin-bottom:.75rem;position:relative;z-index:1">
+        <img id="heroOrgLogo" src="/logo/logo.jpeg" alt="" style="height:36px;width:36px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.15);padding:3px">
+        <span id="heroOrgName" style="font-size:.875rem;font-weight:700;color:rgba(255,255,255,.9)"></span>
+      </div>
       <div class="hero-eyebrow">You're Invited</div>
       <h1 class="hero-title" id="heroTitle"></h1>
       <p class="hero-sub" id="heroSub"></p>
@@ -565,11 +580,15 @@
 
     const p = new URLSearchParams();
     p.set('name', name);
+    const org     = document.getElementById('b-org').value.trim();
+    const logo    = document.getElementById('b-logo').value.trim();
     const tagline = document.getElementById('b-tagline').value.trim();
     const date    = buildDateStr();
     const time    = buildTimeStr();
     const venue   = document.getElementById('b-venue').value.trim();
     const about   = document.getElementById('b-about').value.trim();
+    if (org)     p.set('org',     org);
+    if (logo)    p.set('logo',    logo);
     if (tagline) p.set('tagline', tagline);
     if (date)    p.set('date',    date);
     if (time)    p.set('time',    time);
@@ -616,10 +635,10 @@
     btn.disabled = true;
     btn.textContent = 'Shortening…';
     try {
-      const res   = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url));
-      const short = (await res.text()).trim();
-      if (short.startsWith('https://tinyurl.com/')) {
-        document.getElementById('generatedUrl').value = short;
+      const res  = await fetch(APPS_SCRIPT_URL + '?action=shorten&url=' + encodeURIComponent(url));
+      const data = await res.json();
+      if (data.short && data.short.startsWith('https://is.gd/')) {
+        document.getElementById('generatedUrl').value = data.short;
         btn.textContent = '✓ Shortened!';
       } else {
         throw new Error('unexpected response');
@@ -669,6 +688,8 @@
   function initEventPage(params) {
     const E = {
       name   : params.get('name')    || 'Event Registration',
+      org    : params.get('org')     || '',
+      logo   : params.get('logo')    || '',
       tagline: params.get('tagline') || '',
       date   : params.get('date')    || '',
       time   : params.get('time')    || '',
@@ -680,7 +701,21 @@
       }),
     };
 
-    document.title = E.name + ' – Registration';
+    document.title = (E.org || E.name) + ' – Registration';
+
+    if (E.logo) {
+      let favicon = document.querySelector("link[rel='icon']");
+      if (!favicon) { favicon = document.createElement('link'); favicon.rel = 'icon'; document.head.appendChild(favicon); }
+      favicon.href = E.logo;
+    }
+
+    if (E.org) {
+      const wrap = document.getElementById('heroOrgWrap');
+      wrap.style.display = 'flex';
+      if (E.logo) document.getElementById('heroOrgLogo').src = E.logo;
+      document.getElementById('heroOrgName').textContent = E.org;
+    }
+
     document.getElementById('heroTitle').textContent = E.name;
     if (E.tagline) {
       document.getElementById('heroSub').textContent = E.tagline;
