@@ -240,7 +240,8 @@
 
         <div class="field span-2">
           <label>Event Name <span class="req">*</span></label>
-          <input type="text" id="b-name" placeholder="e.g. ASVDJ Events 2026">
+          <input type="text" id="b-name" placeholder="e.g. ASVDJ Events 2026" list="savedDrafts" autocomplete="off">
+          <datalist id="savedDrafts"></datalist>
         </div>
 
         <div class="field span-2">
@@ -568,6 +569,71 @@
     document.getElementById('progRows').appendChild(div);
   }
 
+  function getDrafts() {
+    try { return JSON.parse(localStorage.getItem('builderDrafts') || '{}'); } catch(_) { return {}; }
+  }
+
+  function saveDraft(name) {
+    const rows = [];
+    document.querySelectorAll('.prog-build-row').forEach(function(row) {
+      rows.push({ time: row.querySelector('.pb-time').value, title: row.querySelector('.pb-title').value, desc: row.querySelector('.pb-desc').value });
+    });
+    const d = getDrafts();
+    d[name] = {
+      org: document.getElementById('b-org').value,
+      logo: document.getElementById('b-logo').value,
+      tagline: document.getElementById('b-tagline').value,
+      day: document.getElementById('b-day').value,
+      month: document.getElementById('b-month').value,
+      year: document.getElementById('b-year').value,
+      startTime: document.getElementById('b-startTime').value,
+      endTime: document.getElementById('b-endTime').value,
+      venue: document.getElementById('b-venue').value,
+      about: document.getElementById('b-about').value,
+      rows: rows,
+    };
+    localStorage.setItem('builderDrafts', JSON.stringify(d));
+    updateDraftDatalist();
+  }
+
+  function restoreDraft(name) {
+    const draft = getDrafts()[name];
+    if (!draft) return;
+    document.getElementById('b-org').value       = draft.org       || '';
+    document.getElementById('b-logo').value      = draft.logo      || '';
+    document.getElementById('b-tagline').value   = draft.tagline   || '';
+    document.getElementById('b-day').value       = draft.day       || '';
+    document.getElementById('b-month').value     = draft.month     || '';
+    document.getElementById('b-year').value      = draft.year      || '';
+    document.getElementById('b-startTime').value = draft.startTime || '';
+    document.getElementById('b-endTime').value   = draft.endTime   || '';
+    document.getElementById('b-venue').value     = draft.venue     || '';
+    document.getElementById('b-about').value     = draft.about     || '';
+    const container = document.getElementById('progRows');
+    container.innerHTML = '';
+    const saved = draft.rows || [];
+    if (saved.length) {
+      saved.forEach(function(r) {
+        addProgRow();
+        const all = container.querySelectorAll('.prog-build-row');
+        const row = all[all.length - 1];
+        row.querySelector('.pb-time').value  = r.time  || '';
+        row.querySelector('.pb-title').value = r.title || '';
+        row.querySelector('.pb-desc').value  = r.desc  || '';
+      });
+    } else {
+      addProgRow(); addProgRow();
+    }
+  }
+
+  function updateDraftDatalist() {
+    const dl = document.getElementById('savedDrafts');
+    if (!dl) return;
+    dl.innerHTML = Object.keys(getDrafts()).map(function(k) {
+      return '<option value="' + k.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">';
+    }).join('');
+  }
+
   function generateLink() {
     const name  = document.getElementById('b-name').value.trim();
     const errEl = document.getElementById('bErr');
@@ -611,6 +677,7 @@
     document.getElementById('shortenBtn').textContent = 'Shorten URL';
     document.getElementById('shortenBtn').disabled = false;
     document.getElementById('copiedMsg').style.display = 'none';
+    saveDraft(name);
   }
 
   function copyLink() {
@@ -637,7 +704,7 @@
     try {
       const res  = await fetch(APPS_SCRIPT_URL + '?action=shorten&url=' + encodeURIComponent(url));
       const data = await res.json();
-      if (data.short && data.short.startsWith('https://is.gd/')) {
+      if (data.short && data.short.includes('?s=')) {
         document.getElementById('generatedUrl').value = data.short;
         btn.textContent = '✓ Shortened!';
       } else {
@@ -678,6 +745,12 @@
     document.getElementById('copyBtn').addEventListener('click', copyLink);
     document.getElementById('previewBtn').addEventListener('click', openPreview);
     document.getElementById('shortenBtn').addEventListener('click', shortenLink);
+
+    updateDraftDatalist();
+    document.getElementById('b-name').addEventListener('change', function() {
+      var n = this.value.trim();
+      if (getDrafts()[n]) restoreDraft(n);
+    });
 
     // Start with two empty program rows
     addProgRow();
@@ -898,7 +971,19 @@
   setTheme(localStorage.getItem('theme') || 'light');
 
   var urlP = new URLSearchParams(window.location.search);
-  if (urlP.has('name')) {
+  if (urlP.has('s')) {
+    var _ld = document.createElement('div');
+    _ld.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:inherit;color:#6B7280;font-size:.9rem';
+    _ld.textContent = 'Loading event…';
+    document.body.appendChild(_ld);
+    fetch(APPS_SCRIPT_URL + '?action=resolve&s=' + encodeURIComponent(urlP.get('s')))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.url) { window.location.replace(data.url); }
+        else { _ld.remove(); document.getElementById('builderView').style.display = ''; initBuilder(); }
+      })
+      .catch(function() { _ld.remove(); document.getElementById('builderView').style.display = ''; initBuilder(); });
+  } else if (urlP.has('name')) {
     document.getElementById('eventView').style.display = '';
     initEventPage(urlP);
   } else {

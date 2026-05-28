@@ -42,15 +42,22 @@ function doGet(e) {
     if (e.parameter.action === 'shorten' && e.parameter.url) {
       return shortenUrl(e.parameter.url);
     }
+    if (e.parameter.action === 'resolve' && e.parameter.s) {
+      const url = PropertiesService.getScriptProperties().getProperty('u_' + e.parameter.s);
+      return jsonResponse({ url: url || null });
+    }
   }
   return jsonResponse({ status: 'Registration API is running' });
 }
 
 function shortenUrl(longUrl) {
   try {
-    const res   = UrlFetchApp.fetch('https://is.gd/create.php?format=simple&url=' + encodeURIComponent(longUrl));
-    const short = res.getContentText().trim();
-    return jsonResponse({ short: short });
+    const props = PropertiesService.getScriptProperties();
+    let code, attempts = 0;
+    do { code = Math.random().toString(36).slice(2, 7); attempts++; }
+    while (props.getProperty('u_' + code) && attempts < 10);
+    props.setProperty('u_' + code, longUrl);
+    return jsonResponse({ short: 'https://asvdj.netlify.app/?s=' + code });
   } catch (err) {
     return jsonResponse({ short: null, error: err.toString() });
   }
