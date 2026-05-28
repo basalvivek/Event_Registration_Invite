@@ -973,7 +973,7 @@
   var urlP = new URLSearchParams(window.location.search);
   if (urlP.has('s')) {
     var _ld = document.createElement('div');
-    _ld.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:inherit;color:#6B7280;font-size:.9rem';
+    _ld.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:inherit;color:#6B7280;font-size:.9rem;background:var(--bg,#fff)';
     _ld.textContent = 'Loading event…';
     document.body.appendChild(_ld);
     fetch(APPS_SCRIPT_URL + '?action=resolve&s=' + encodeURIComponent(urlP.get('s')))
